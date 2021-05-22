@@ -4,6 +4,8 @@ use std::env;
 use std::fs;
 // std::process imports a standard library for working with processes
 use std::process;
+// brings Error into use; use for basic expectations in error values
+use std::error::Error;
 
 fn main() {
     // env::args(); returns an iterator of command line args
@@ -22,10 +24,25 @@ fn main() {
     println!("In {}", config.filename);
 
     // read in file content to a string
-    let contents = fs::read_to_string(config.filename)
-        .expect("Something went wrong with reading in the file");
+    // don't need to worry about using an unwrap because the return of this function isn't relevant
+    // only that the code within executes
+    if let Err(e) = run(config) {
+        println!("Application error: {}", e);
+        process::exit(1);
+    };
+}
 
-    println!("With text:\n\n{}", contents)
+// Box trait object; will return a type that implements the Error trait
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    println!("You're searching for {}", config.query);
+    println!("In {}", config.filename);
+
+    let contents = fs::read_to_string(config.filename)?;
+
+    println!("With text:\n\n{}", contents);
+
+    // Returns an 'Ok' value in case of success
+    Ok(())
 }
 
 struct Config {
