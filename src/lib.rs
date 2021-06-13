@@ -5,13 +5,11 @@ use std::fs;
 
 // Box trait object; will return a type that implements the Error trait
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    println!("You're searching for {}", config.query);
-    println!("In {}", config.filename);
-
     let contents = fs::read_to_string(config.filename)?;
 
-    println!("With text:\n\n{}", contents);
-
+    for line in search(&config.query, &contents) {
+        println!("{}", line);
+    }
 
     // Returns an 'Ok' value in case of success
     Ok(())
