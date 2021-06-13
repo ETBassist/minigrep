@@ -12,6 +12,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     println!("With text:\n\n{}", contents);
 
+
     // Returns an 'Ok' value in case of success
     Ok(())
 }
@@ -19,7 +20,17 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 // 'a in the args here is a lifetime annotation; ensures that the value persists long
 // enough to be used without going out of scope
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    vec![]
+    let mut results = Vec::new(); // create a mutable vector to store results
+    // lines; method for iterating through string with line breaks (\n or \r\n)
+    // returns an iterator
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
+
+    // implicit return
+    results
 }
 
 pub struct Config {
