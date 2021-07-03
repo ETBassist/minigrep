@@ -2,12 +2,20 @@
 use std::error::Error;
 // std::fs imports standard library for interacting with files
 use std::fs;
+// std::env imports functions for working with env variables
+use std::env;
 
 // Box trait object; will return a type that implements the Error trait
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
 
-    for line in search(&config.query, &contents) {
+    let results = if config.case_sensitive {
+        search(&config.query, &contents)
+    } else {
+        search_case_insensitive(&config.query, &contents)
+    };
+
+    for line in results {
         println!("{}", line);
     }
 
@@ -39,7 +47,9 @@ pub fn search_case_insensitive<'a>(
     let mut results = Vec::new();
 
     for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
+        // now takes a reference &query because to_lowercase returns a new str
+        // since the original str slice wouldn't contain the case insensitive query str
+        if line.to_lowercase().contains(&query) { 
             results.push(line);
         }
     }
@@ -50,6 +60,7 @@ pub fn search_case_insensitive<'a>(
 pub struct Config {
     pub query: String,
     pub filename: String,
+    pub case_sensitive: bool,
 }
 
 // implements function that takes collection of strings as args; returns a Result with a Config
@@ -64,7 +75,15 @@ impl Config {
         let query = args[1].clone(); // clones values for storage in config struct
         let filename = args[2].clone(); // less efficient, but easier to do
 
-        Ok( Config { query, filename } )
+        // returns true if it errors when trying to find the env var; if it errors,
+        // it means that it's unset and therefore false
+        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+
+        Ok(Config {
+            query,
+            filename,
+            case_sensitive
+        })
     }
 }
 
