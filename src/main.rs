@@ -14,7 +14,7 @@ fn main() {
     // .unwrap_or_else is defined on Result<T, E>; returns value for Ok if present, or else refers
     // to the closure (which can use the value for Err)
     let config = Config::new(&args).unwrap_or_else(|err| {
-        println!("Problem parsing arguments: {}", err);
+        eprintln!("Problem parsing arguments: {}", err); // eprintln! prints to std error instead of output
         process::exit(1);
     });
 
@@ -25,7 +25,7 @@ fn main() {
     // don't need to worry about using an unwrap because the return of this function isn't relevant
     // only that the code within executes
     if let Err(e) = minigrep::run(config) {
-        println!("Application error: {}", e);
+        eprintln!("Application error: {}", e);
         process::exit(1);
     };
 }
